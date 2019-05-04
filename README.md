@@ -4,7 +4,7 @@ This script is a transparent wrapper to run your node projects in per project do
 
 ## Install
 
-> bash v4.3+ is required
+> Bash v4.3+ is required
 
 Make sure you have a working docker daemon installed on your system and your user has been added to the `docker` group
 
@@ -44,7 +44,7 @@ Eg: _--node-id clientX_
 
 When supplied the existing docker container is removed and a new one is created
 
-- `--copy-env`
+- `--copy-env` / `COPY_ENV`
 
 A regular expression of environment variable names you want to copy to the docker container. These are only copied once and are not persistent in the docker container
 
@@ -114,4 +114,9 @@ With the above examples then when running `node` will result in using node versi
 - The current working directory (`pwd`) is also used as working directory in the docker container. If your `pwd` is not available in the docker container then executing `node` will result in an error
 - npm / yarn caches are not shared between containers
 - commands are run in the container as the user node which has a user id of `1000`
-- bash v4.3+ is required (which is eg not available for install by default on Cent OS v7)
+- Bash v4.3+ is required (which is eg not available for install by default on Cent OS v7)
+
+Here is a bash install from source oneliner :)
+```
+wget http://ftp.gnu.org/gnu/bash/bash-4.4.18.tar.gz && tar xzf ./bash-4.4.18.tar.gz -C /tmp && cd /tmp/bash-4.4.18 && ./configure && make && make install && cd - && rm -Rf /tmp/bash-4.4.18 && rm bash-4.4.18.tar.gz
+```
