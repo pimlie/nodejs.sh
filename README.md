@@ -4,9 +4,9 @@ This script is a transparent wrapper to run your node projects in per project do
 
 ## Install
 
-> bash v4.3+ is required, which means on CentOS 7 you have to install bash from source
+> bash v4.3+ is required
 
-Make sure you have a working docker daemon installed on your system
+Make sure you have a working docker daemon installed on your system and your user has been added to the `docker` group
 
 ```
 wget https://raw.githubusercontent.com/pimlie/nodejs.sh/master/nodejs.sh
@@ -42,7 +42,7 @@ Eg: _--node-id clientX_
 
 - `--node-remove`
 
-When supplied an existing docker container is removed so a new one is created
+When supplied the existing docker container is removed and a new one is created
 
 - `--copy-env`
 
