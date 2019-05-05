@@ -221,7 +221,8 @@ if [ -n "$removeContainer" ]; then
 fi
 
 # Create container when the name doesnt exists
-if [ "$(docker ps -aqf "name=^${containerName}$" | wc -l)" -eq 0 ]; then
+status="$(docker ps -af "name=^${containerName}$" --format "{{.Status}}")"
+if [ -z "${status}" ]; then
   declare -a vols
   addVolumes vols "volumes"
   addVolumes vols "volumes_${nodeId}"
@@ -232,8 +233,12 @@ if [ "$(docker ps -aqf "name=^${containerName}$" | wc -l)" -eq 0 ]; then
 
   docker run -it -d --net host "--name=${containerName}" "${vols[@]}" "${opts[@]}" "node${imageTag+:$imageTag}" /bin/sh -c 'touch /var/log/node.log && tail -f /var/log/node.log'
 
-# Start the stopped container
-elif [ "$(docker ps -qf "name=^${containerName}$" | wc -l)" -eq 0 ]; then
+# Resume the container if its paused
+elif [[ $status == "Up "*"(Paused)" ]]; then
+  docker unpause "$containerName"
+
+# Start the container if it was stopped
+elif [[ $status != "Up "* ]]; then
   docker start "$containerName"
 fi
 

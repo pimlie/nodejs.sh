@@ -185,9 +185,9 @@ sys	0m0.000s
 $ time docker exec node node -v
 v12.0.0
 
-real	0m0.152s
-user	0m0.020s
-sys	0m0.013s
+real	0m0.130s
+user	0m0.018s
+sys	0m0.015s
 ```
 
 - nodejs.sh
@@ -195,7 +195,7 @@ sys	0m0.013s
 $ time node -v
 v12.0.0
 
-real	0m0.246s
-user	0m0.058s
-sys	0m0.055s
+real	0m0.177s
+user	0m0.034s
+sys	0m0.049s
 ```
