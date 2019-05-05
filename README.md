@@ -28,17 +28,25 @@ When you execute a node command the command is passed to a `docker exec` on the 
 
 These options can be set on the cli, as environment variable or in a `.noderc` config file (see below)
 
+- `--node-id` / `NODE_ID`
+
+An identifier for your project or projects dir
+
+Eg: _--node-id clientX_
+
 - `--node-version` / `NODE_VERSION`
 
 Which node version you want to run. This version should be available as container from the official node docker repository: https://hub.docker.com/_/node
 
 Eg: _--node-version 11.15.0_
 
-- `--node-id` / `NODE_ID`
+- `--node-user` / `NODE_USER`
 
-An identifier for your project or projects dir
+As which user the command should be run in the docker container, uses the docker exec option `--user`
 
-Eg: _--node-id clientX_
+> By default global commands (specified by `-g` or `--global`) are run as user _root_, all other commands are run as user _node_ with id _1000_
+
+Eg: _--node-user node_
 
 - `--node-remove`
 
@@ -113,7 +121,7 @@ With the above examples then when running `node` will result in using node versi
 
 - The current working directory (`pwd`) is also used as working directory in the docker container. If your `pwd` is not available in the docker container then executing `node` will result in an error
 - npm / yarn caches are not shared between containers
-- commands are run in the container as the user node which has a user id of `1000`
+- global packages are only installed for the current `node_id`, if you need to have the global package in all containers you should run the install command for all containers
 - Bash v4.3+ is required (which is eg not available for install by default on Cent OS v7)
 
 Here is a bash install from source oneliner :)

@@ -145,11 +145,20 @@ function addVolumes {
   fi
 }
 
-declare rootDir
-declare nodeVersion
-declare nodeId
-declare removeContainer
+# from: https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value
+function containsElement {
+  local e match="$1"
+  shift
+  for e; do [[ "$e" == "$match" ]] && return 0; done
+  return 1
+}
+
 declare copyEnvVars
+declare nodeId
+declare nodeVersion
+declare nodeUser
+declare removeContainer
+declare rootDir
 declare -a volumes
 
 # Find root folder of node project
@@ -162,10 +171,18 @@ loadSource "/etc/nodejs-sh.conf"
 loadSource "${rootDir}/${rcFile}"
 
 # Set node options
-setOption nodeVersion "node-version" "(([0-9]+)(\\.[0-9]+)?(\\.[0-9]+)?)"
 setOption nodeId "node-id" "([^-]+)"
+setOption nodeVersion "node-version" "(([0-9]+)(\\.[0-9]+)?(\\.[0-9]+)?)"
+setOption nodeUser "node-user" "([^-]+)"
 setOption removeContainer "node-remove"
 setOption copyEnvVars "node-copy-env" "([^-]+)"
+
+# Automatically run command as root for global commands
+defaultUser="node"
+if containsElement "-g" "${commandArguments[@]}" || containsElement "--global" "${commandArguments[@]}"; then
+  defaultUser="root"
+fi
+nodeUser=${nodeUser:-$defaultUser}
 
 # Set default node id if not set
 nodeId=${nodeId:-$defaultNodeId}
@@ -218,7 +235,7 @@ for arg in "${commandArguments[@]}"; do
 done
 
 # Run the requested command in the container
-docker exec --user node -it -w "$PWD" "${containerName}" /bin/sh -ic "__SCRIPT_PID=$SCRIPT_PID $copiedEnv $commandToRun $commandArgs"
+docker exec --user "${nodeUser}" -it -w "$PWD" "${containerName}" /bin/sh -ic "__SCRIPT_PID=$SCRIPT_PID $copiedEnv $commandToRun $commandArgs"
 
 # Find the pid on the host for the started command
 EXEC_PID=$(pgrep -f "__SCRIPT_PID=$SCRIPT_PID")
@@ -230,6 +247,6 @@ done
 
 # If this bash process was killed, also kill the node process (tree) within the container
 if [ $KILLED -eq 1 ]; then
-  docker exec --user node "${containerName}" /bin/sh -c 'pgrep -f "__SCRIPT_PID='$SCRIPT_PID'" | xargs ps --forest -o pid= -g | xargs kill'
+  docker exec --user "${nodeUser}" "${containerName}" /bin/sh -c 'pgrep -f "__SCRIPT_PID='$SCRIPT_PID'" | xargs ps --forest -o pid= -g | xargs kill'
 fi
 
