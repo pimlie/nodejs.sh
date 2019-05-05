@@ -25,7 +25,6 @@ set -e
 
 commandToRun=$(basename "$0")
 commandArguments=("$@")
-rcFile=".noderc"
 
 function findProjectRoot {
   declare -n "_rootDir=$1"
@@ -166,6 +165,9 @@ findProjectRoot rootDir "$PWD"
 
 # Load default settings
 loadSource "/etc/nodejs-sh.conf"
+
+# Set default rc file name
+rcFile=${rcFile:-.noderc}
 
 # Load project settings
 loadSource "${rootDir}/${rcFile}"

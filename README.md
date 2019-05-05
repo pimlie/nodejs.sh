@@ -12,14 +12,21 @@ Make sure you have a working docker daemon installed on your system and your use
 wget https://raw.githubusercontent.com/pimlie/nodejs.sh/master/nodejs.sh
 chmod +x nodejs.sh
 sudo mv nodejs.sh /usr/local/sbin
+```
+
+Then create symlinks to the node commands. You could choose not to link them all, eg if you use yarn and always run a script from your package.json you only need to link `yarn` and you can leave node to point to your local install
+
+> If you choose not to symlink `node` or dont have node installed locally as well, please also symlink globally installed commands like `ncu`, `vue` etc
+
+```
 sudo ln -s nodejs.sh /usr/local/sbin/node
 sudo ln -s nodejs.sh /usr/local/sbin/npm
 sudo ln -s nodejs.sh /usr/local/sbin/yarn
 ```
 
-Then probably you need to sign out for your shell to pickup the new paths to node etc
+After this you probably need to sign out and in for your shell to pickup the new paths
 
-> As eg `npm-check-updates` add symlinks to `/usr/local/bin`, we recommend to add symlinks to `/usr/local/sbin` as on Ubuntu/CentOS this has a higher priority and you can still access your local node install
+> As eg running `n` add symlinks to `/usr/local/bin`, we recommend to add symlinks to `/usr/local/sbin` as on Ubuntu/CentOS this has a higher priority and you can still access your local node install
 
 ## How it works
 
@@ -69,6 +76,10 @@ Eg: _--copy-env "^(HOST|PORT|CI_.*)$"_ or _--copy-env "HOST,PORT"_
 
 The global configuration is stored in: `/etc/nodejs-sh.conf`
 
+- `rcFile` (default: _.noderc_)
+
+The name of the rc file with project configuration to look for
+
 - `defaultNodeId`
 
 The default id which is used. This is helpful if you dont want to include any volumes by default
@@ -84,6 +95,7 @@ An array of all paths which should be added as a volume to containers for _${nod
 Example config:
 ```
 # /etc/nodejs-sh.conf
+
 defaultNodeId=opensource
 
 volumes=("/var/projects/libraries")
@@ -130,4 +142,38 @@ With the above examples then when running `node` will result in using node versi
 Here is a bash install from source oneliner :)
 ```
 wget http://ftp.gnu.org/gnu/bash/bash-4.4.18.tar.gz && tar xzf ./bash-4.4.18.tar.gz -C /tmp && cd /tmp/bash-4.4.18 && ./configure && make && make install && cd - && rm -Rf /tmp/bash-4.4.18 && rm bash-4.4.18.tar.gz
+```
+
+## Overhead
+
+Using this wrapper has a small (but imo neglible) overhead ofc, see below for some numbers
+
+- Local install
+```
+$ time node -v
+v12.0.0
+
+real	0m0.002s
+user	0m0.002s
+sys	0m0.000s
+```
+
+- docker exec directly
+```
+$ time docker exec node node -v
+v12.0.0
+
+real	0m0.152s
+user	0m0.020s
+sys	0m0.013s
+```
+
+- nodejs.sh
+```
+$ time node -v
+v12.0.0
+
+real	0m0.246s
+user	0m0.058s
+sys	0m0.055s
 ```
