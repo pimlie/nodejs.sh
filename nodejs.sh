@@ -144,6 +144,16 @@ function addVolumes {
   fi
 }
 
+function addOpts {
+  declare -n "_options=$1"
+  declare -n "_conf_options=$2"
+
+  if [ -n "${_conf_options+x}" ] && [ ${#_conf_options[@]} -gt 0 ]; then
+    for option in "${_conf_options[@]}"; do
+      _options+=("${option}")
+    done
+  fi
+}
 # from: https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value
 function containsElement {
   local e match="$1"
@@ -216,7 +226,11 @@ if [ "$(docker ps -aqf "name=^${containerName}$" | wc -l)" -eq 0 ]; then
   addVolumes vols "volumes"
   addVolumes vols "volumes_${nodeId}"
 
-  docker run -it -d --net host "--name=${containerName}" "${vols[@]}" "node${imageTag+:$imageTag}" /bin/sh -c 'touch /var/log/node.log && tail -f /var/log/node.log'
+  declare -a opts
+  addOpts opts "dockerOptions"
+  addOpts opts "dockerOptions_${nodeId}"
+
+  docker run -it -d --net host "--name=${containerName}" "${vols[@]}" "${opts[@]}" "node${imageTag+:$imageTag}" /bin/sh -c 'touch /var/log/node.log && tail -f /var/log/node.log'
 
 # Start the stopped container
 elif [ "$(docker ps -qf "name=^${containerName}$" | wc -l)" -eq 0 ]; then

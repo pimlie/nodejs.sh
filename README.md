@@ -16,7 +16,7 @@ sudo mv nodejs.sh /usr/local/sbin
 
 Then create symlinks to the node commands. You could choose not to link them all, eg if you use yarn and always run a script from your package.json you only need to link `yarn` and you can leave node to point to your local install
 
-> If you choose not to symlink `node` or dont have node installed locally as well, please also symlink globally installed commands like `ncu`, `vue` etc
+> If you choose not to symlink `node` or dont have node installed locally as well, please also symlink globally installed commands like [`ncu`](https://www.npmjs.com/package/npm-check-updates), [`vue`](https://www.npmjs.com/package/@vue/cli) etc
 
 ```
 sudo ln -s nodejs.sh /usr/local/sbin/node
@@ -26,7 +26,7 @@ sudo ln -s nodejs.sh /usr/local/sbin/yarn
 
 After this you probably need to sign out and in for your shell to pickup the new paths
 
-> As eg running `n` add symlinks to `/usr/local/bin`, we recommend to add symlinks to `/usr/local/sbin` as on Ubuntu/CentOS this has a higher preference and you can still access your local node install
+> As eg running [`n`](https://www.npmjs.com/package/n) add symlinks to `/usr/local/bin`, we recommend to add symlinks to `/usr/local/sbin` as on Ubuntu/CentOS this has a higher preference and you can still access your local node install
 
 ## How it works
 
@@ -46,7 +46,7 @@ Eg: _--node-id clientX_
 
 - `--node-version` / `NODE_VERSION`
 
-Which node version you want to run. This version should be available as container from the official node docker repository: https://hub.docker.com/_/node
+Which node version you want to run. This version should be available as container from the [official node docker repository](https://hub.docker.com/_/node)
 
 Eg: _--node-version 11.15.0_
 
@@ -82,7 +82,7 @@ The name of the rc file with project configuration to look for
 
 - `imageTag` (default: _alpine_)
 
-The image tag to use available from the official node docker repository (without the version), by default alpine is used. Set to empty string to use node's default
+The image tag to use available from the [official node docker repository](https://hub.docker.com/_/node) (without the version), by default _alpine_ is used. Set to empty string to use node's default
 
 Eg: `imageTag=` (to use node's default), `imageTag=stretch` or `imageTag=jessie-slim`
 
@@ -98,11 +98,23 @@ An array of all paths which should be added as a volume to _all_ containers
 
 An array of all paths which should be added as a volume to containers for _${nodeId}_
 
+- `dockerOptions`
+
+An array of additional options that should be added when creating any new node container (see [`docker run`](https://docs.docker.com/engine/reference/commandline/run/) for available options)
+
+- `dockerOptions_${nodeId}`
+
+An array of additional options that should be added when creating a new container for _${nodeId}_ (see [`docker run`](https://docs.docker.com/engine/reference/commandline/run/) for available options)
+
 Example config:
 ```
 # /etc/nodejs-sh.conf
 
-defaultNodeId=opensource
+rcFile=".noderc"
+
+defaultNodeId="opensource"
+
+imageTag="alpine"
 
 volumes=("/var/projects/libraries")
 
@@ -112,6 +124,10 @@ volumes_clientX=(
   "/var/projects/clientX_project1"
   "/var/projects/clientX_project2"
 )
+
+dockerOptions=("--dns=1.1.1.1")
+
+dockerOptions_opensource=("--dns=8.8.8.8")
 ```
 
 ### Project (dir) configuration
@@ -136,7 +152,7 @@ COPY_ENV="^(HOST|PORT)$"
 
 With the above examples then when running `node` will result in using node version 12 for your opensource projects and node version 10 for clientX projects.
 
-> The first `.noderc` file which is found in your parent folder tree is used. Eg given a file `/var/projects/clientX/.noderc` then running node in the folder `/var/projects/clientX/projectY` will also use the `.noderc` file in `clientX` unless you `projectY` contains a ``.noderc` file as well
+> The first `.noderc` file which is found in your parent folder tree is used. Eg given a file `/var/projects/clientX/.noderc` then running node in the folder `/var/projects/clientX/projectY` will also use the `.noderc` file in `clientX` unless `projectY` contains a ``.noderc` file as well
 
 ## Caveats
 
