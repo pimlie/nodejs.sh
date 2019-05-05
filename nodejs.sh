@@ -191,9 +191,13 @@ nodeId=${nodeId:-$defaultNodeId}
 
 # Set container name based on options
 containerName="node"
+
+# Set imageTag to alpine if not set
+imageTag=${imageTag-alpine}
+
 if [ -n "$nodeVersion" ]; then
   containerName="${containerName}-${nodeVersion}"
-  containerTag="${nodeVersion}-"
+  imageTag="${nodeVersion}-${imageTag}"
 fi
 
 if [ -n "$nodeId" ]; then
@@ -212,7 +216,7 @@ if [ "$(docker ps -aqf "name=^${containerName}$" | wc -l)" -eq 0 ]; then
   addVolumes vols "volumes"
   addVolumes vols "volumes_${nodeId}"
 
-  docker run -it -d --net host "--name=${containerName}" "${vols[@]}" "node:${containerTag}alpine" /bin/sh -c 'touch /var/log/node.log && tail -f /var/log/node.log'
+  docker run -it -d --net host "--name=${containerName}" "${vols[@]}" "node${imageTag+:$imageTag}" /bin/sh -c 'touch /var/log/node.log && tail -f /var/log/node.log'
 
 # Start the stopped container
 elif [ "$(docker ps -qf "name=^${containerName}$" | wc -l)" -eq 0 ]; then

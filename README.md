@@ -26,7 +26,7 @@ sudo ln -s nodejs.sh /usr/local/sbin/yarn
 
 After this you probably need to sign out and in for your shell to pickup the new paths
 
-> As eg running `n` add symlinks to `/usr/local/bin`, we recommend to add symlinks to `/usr/local/sbin` as on Ubuntu/CentOS this has a higher priority and you can still access your local node install
+> As eg running `n` add symlinks to `/usr/local/bin`, we recommend to add symlinks to `/usr/local/sbin` as on Ubuntu/CentOS this has a higher preference and you can still access your local node install
 
 ## How it works
 
@@ -79,6 +79,12 @@ The global configuration is stored in: `/etc/nodejs-sh.conf`
 - `rcFile` (default: _.noderc_)
 
 The name of the rc file with project configuration to look for
+
+- `imageTag` (default: _alpine_)
+
+The image tag to use available from the official node docker repository (without the version), by default alpine is used. Set to empty string to use node's default
+
+Eg: `imageTag=` (to use node's default), `imageTag=stretch` or `imageTag=jessie-slim`
 
 - `defaultNodeId`
 
