@@ -12,15 +12,18 @@ Make sure you have a working docker daemon installed on your system and your use
 wget https://raw.githubusercontent.com/pimlie/nodejs.sh/master/nodejs.sh
 chmod +x nodejs.sh
 sudo mv nodejs.sh /usr/local/sbin
-ln -s nodejs.sh /usr/local/sbin/node
-ln -s nodejs.sh /usr/local/sbin/npm
-ln -s nodejs.sh /usr/local/sbin/yarn
+sudo ln -s nodejs.sh /usr/local/sbin/node
+sudo ln -s nodejs.sh /usr/local/sbin/npm
+sudo ln -s nodejs.sh /usr/local/sbin/yarn
 ```
+
+Then probably you need to sign out for your shell to pickup the new paths to node etc
+
 > As eg `npm-check-updates` add symlinks to `/usr/local/bin`, we recommend to add symlinks to `/usr/local/sbin` as on Ubuntu/CentOS this has a higher priority and you can still access your local node install
 
 ## How it works
 
-This scripts pulls official node docker containers based on the version requested. It then assigns each container a unique name based on the version and the specified id.
+This scripts pulls official node docker containers based on the version requested. It then creates a container for that image with a unique name based on the version and the specified (project) id.
 
 When you execute a node command the command is passed to a `docker exec` on the container. This means the docker container needs to have a volume which is bound to your project folder
 
@@ -44,9 +47,9 @@ Eg: _--node-version 11.15.0_
 
 As which user the command should be run in the docker container, uses the docker exec option `--user`
 
-> By default global commands (specified by `-g` or `--global`) are run as user _root_, all other commands are run as user _node_ with id _1000_
-
 Eg: _--node-user node_
+
+> By default global commands (specified by `-g` or `--global`) are run as user _root_, all other commands are run as user _node_ with id _1000_
 
 - `--node-remove`
 
@@ -54,9 +57,9 @@ When supplied the existing docker container is removed and a new one is created
 
 - `--copy-env` / `COPY_ENV`
 
-A regular expression of environment variable names you want to copy to the docker container. These are only copied once and are not persistent in the docker container
+A comma separated list or regular expression of environment variable names you want to copy to the docker container. These are only copied once and are not persistent in the docker container
 
-Eg: _--copy-env "^(HOST|PORT|CI_.*)$"_
+Eg: _--copy-env "^(HOST|PORT|CI_.*)$"_ or _--copy-env "HOST,PORT"_
 
 > Any environment variable starting with `NODE_` will always be copied to the container
 
