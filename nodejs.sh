@@ -188,7 +188,7 @@ setOption nodeId "node-id" "([^-]+)"
 setOption nodeVersion "node-version" "(([0-9]+)(\\.[0-9]+)?(\\.[0-9]+)?)"
 setOption nodeUser "node-user" "([^-]+)"
 setOption removeContainer "node-remove"
-setOption copyEnvVars "node-copy-env" "([^-]+)"
+setOption copyEnvVars "copy-env" "([^-]+)"
 
 # Automatically run command as root for global commands
 defaultUser="node"
