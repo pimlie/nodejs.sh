@@ -44,17 +44,17 @@ function loadSource {
 }
 
 function setOption {
-  declare -n "opt=$1"
+  declare -n "_opt=$1"
   optname=$2
   optmatch=$3
 
   envName=${optname^^}
   envName=${envName//-/_}
 
-  declare -n "envVar=$envName"
+  declare -n "_envVar=$envName"
 
-  if [ -n "$envVar" ]; then
-    opt="$envVar"
+  if [ -n "$_envVar" ]; then
+    _opt="$_envVar"
   fi
 
   for i in "${!commandArguments[@]}"; do
@@ -62,7 +62,7 @@ function setOption {
 
     if [ "$arg" = "--${optname}" ]; then
       if [ -z "$optmatch" ]; then
-        opt=1
+        _opt=1
         unset 'commandArguments[i]'
         break
       fi
@@ -76,7 +76,7 @@ function setOption {
           exit 1
         fi
 
-        opt="$val"
+        _opt="$val"
 
         unset 'commandArguments[i]'
         unset 'commandArguments[k]'
@@ -135,10 +135,10 @@ function copyEnvironment {
 
 function addVolumes {
   declare -n "_volumes=$1"
-  declare -n "_conf_volumes=$2"
+  declare -n "_confVolumes=$2"
 
-  if [ -n "${_conf_volumes+x}" ] && [ ${#_conf_volumes[@]} -gt 0 ]; then
-    for volume in "${_conf_volumes[@]}"; do
+  if [ -n "${_confVolumes+x}" ] && [ ${#_confVolumes[@]} -gt 0 ]; then
+    for volume in "${_confVolumes[@]}"; do
       _volumes+=("--volume=${volume}:${volume}")
     done
   fi
@@ -146,14 +146,15 @@ function addVolumes {
 
 function addOpts {
   declare -n "_options=$1"
-  declare -n "_conf_options=$2"
+  declare -n "_confOptions=$2"
 
-  if [ -n "${_conf_options+x}" ] && [ ${#_conf_options[@]} -gt 0 ]; then
-    for option in "${_conf_options[@]}"; do
+  if [ -n "${_confOptions+x}" ] && [ ${#_confOptions[@]} -gt 0 ]; then
+    for option in "${_confOptions[@]}"; do
       _options+=("${option}")
     done
   fi
 }
+
 # from: https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value
 function containsElement {
   local e match="$1"
@@ -170,14 +171,14 @@ declare removeContainer
 declare rootDir
 declare -a volumes
 
-# Find root folder of node project
-findProjectRoot rootDir "$PWD"
-
 # Load default settings
 loadSource "/etc/nodejs-sh.conf"
 
 # Set default rc file name
 rcFile=${rcFile:-.noderc}
+
+# Find root folder of node project
+findProjectRoot rootDir "$PWD"
 
 # Load project settings
 loadSource "${rootDir}/${rcFile}"
@@ -199,17 +200,14 @@ nodeUser=${nodeUser:-$defaultUser}
 # Set default node id if not set
 nodeId=${nodeId:-$defaultNodeId}
 
-# Set container name based on options
-containerName="node"
-
 # Set imageTag to alpine if not set
 imageTag=${imageTag-alpine}
-
 if [ -n "$nodeVersion" ]; then
-  containerName="${containerName}-${nodeVersion}"
   imageTag="${nodeVersion}-${imageTag}"
 fi
 
+# Set container name based on options
+containerName="node-${imageTag}"
 if [ -n "$nodeId" ]; then
   containerName="${containerName}-${nodeId}"
 fi
@@ -231,7 +229,7 @@ if [ -z "${status}" ]; then
   addOpts opts "dockerOptions"
   addOpts opts "dockerOptions_${nodeId}"
 
-  docker run -it -d --net host "--name=${containerName}" "${vols[@]}" "${opts[@]}" "node${imageTag+:$imageTag}" /bin/sh -c 'touch /var/log/node.log && tail -f /var/log/node.log'
+  docker run -it -d --net host "--name=${containerName}" "${vols[@]}" "${opts[@]}" "node${imageTag:+:$imageTag}" /bin/sh -c 'touch /var/log/node.log && tail -f /var/log/node.log'
 
 # Resume the container if its paused
 elif [[ $status == "Up "*"(Paused)" ]]; then
