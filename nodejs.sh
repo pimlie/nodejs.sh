@@ -231,6 +231,31 @@ if [ -z "${status}" ]; then
 
   docker run -it -d --net host "--name=${containerName}" "${vols[@]}" "${opts[@]}" "node${imageTag:+:$imageTag}" /bin/sh -c 'touch /var/log/node.log && tail -f /var/log/node.log'
 
+  # install system packages if requested
+  declare -a pkgs
+  addOpts pkgs "packages"
+  addOpts pkgs "packages_${nodeId}"
+
+  if [ ${#pkgs[@]} -gt 0 ]; then
+    packager=$(docker exec "${containerName}" /bin/sh -c 'echo "$(which apk || which apt-get || which yum)"')
+
+    command="install"
+    if [[ $packager == *"apk"* ]]; then
+      command="add"
+    fi
+
+    docker exec "${containerName}" $packager $command "${pkgs[*]}"
+  fi
+
+  # install global npm packages if requested
+  declare -a npmPkgs
+  addOpts npmPkgs "npmPackages"
+  addOpts npmPkgs "npmPackages_${nodeId}"
+
+  if [ ${#npmPkgs[@]} -gt 0 ]; then
+    docker exec "${containerName}" yarn global add "${npmPkgs[*]}"
+  fi
+
 # Resume the container if its paused
 elif [[ $status == "Up "*"(Paused)" ]]; then
   docker unpause "$containerName"

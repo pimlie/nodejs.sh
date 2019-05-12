@@ -90,6 +90,14 @@ Eg: `imageTag=` (to use node's default), `imageTag=stretch` or `imageTag=jessie-
 
 The default id which is used. This is helpful if you dont want to include any volumes by default
 
+- `dockerOptions`
+
+An array of additional options that should be added when creating any new node container (see [`docker run`](https://docs.docker.com/engine/reference/commandline/run/) for available options)
+
+- `dockerOptions_${nodeId}`
+
+An array of additional options that should be added when creating a new container for _${nodeId}_ (see [`docker run`](https://docs.docker.com/engine/reference/commandline/run/) for available options)
+
 - `volumes`
 
 An array of all paths which should be added as a volume to _all_ containers
@@ -98,13 +106,21 @@ An array of all paths which should be added as a volume to _all_ containers
 
 An array of all paths which should be added as a volume to containers for _${nodeId}_
 
-- `dockerOptions`
+- `packages`
 
-An array of additional options that should be added when creating any new node container (see [`docker run`](https://docs.docker.com/engine/reference/commandline/run/) for available options)
+An array of system packages that should be installed when any new node container has been created
 
-- `dockerOptions_${nodeId}`
+- `packages_${nodeId}`
 
-An array of additional options that should be added when creating a new container for _${nodeId}_ (see [`docker run`](https://docs.docker.com/engine/reference/commandline/run/) for available options)
+An array of system packages that should be installed when a new node container has been created for _${nodeId}_
+
+- `npmPackages`
+
+An array of npm packages that should be globally installed when any new node container has been created
+
+- `npmPackages_${nodeId}`
+
+An array of npm packages that should be globally installed when a new node container has been created for _${nodeId}_
 
 Example config:
 ```
@@ -128,6 +144,12 @@ volumes_clientX=(
 dockerOptions=("--dns=1.1.1.1")
 
 dockerOptions_opensource=("--dns=8.8.8.8")
+
+# for e2e browser testing
+packages_opensource=("chromium")
+
+# so we can always run ncu to update all dependencies
+npmPackages=("npm-check-updates")
 ```
 
 ### Project (dir) configuration
