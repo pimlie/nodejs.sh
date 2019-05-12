@@ -91,36 +91,24 @@ Eg: `imageTag=` (to use node's default), `imageTag=stretch` or `imageTag=jessie-
 The default id which is used. This is helpful if you dont want to include any volumes by default
 
 - `dockerOptions`
-
-An array of additional options that should be added when creating any new node container (see [`docker run`](https://docs.docker.com/engine/reference/commandline/run/) for available options)
-
 - `dockerOptions_${nodeId}`
 
-An array of additional options that should be added when creating a new container for _${nodeId}_ (see [`docker run`](https://docs.docker.com/engine/reference/commandline/run/) for available options)
+An array of additional options that should be added when creating a new node container. When specified as `dockerOptions_${nodeId}` then the options are only added to the _$nodeId_ container. See [`docker run`](https://docs.docker.com/engine/reference/commandline/run/) for available options
 
 - `volumes`
-
-An array of all paths which should be added as a volume to _all_ containers
-
 - `volumes_${nodeId}`
 
-An array of all paths which should be added as a volume to containers for _${nodeId}_
+An array of all paths which should be added as a volume to a container. When specified as `volumes_${nodeId}` then the volumes will only be added to the _$nodeId_ container
 
 - `packages`
-
-An array of system packages that should be installed when any new node container has been created
-
 - `packages_${nodeId}`
 
-An array of system packages that should be installed when a new node container has been created for _${nodeId}_
+An array of system packages that should be installed when a new container has been created. When specified as `packages_${nodeId}` then the system packages will only be installed for the _$nodeId_ container
 
 - `npmPackages`
-
-An array of npm packages that should be globally installed when any new node container has been created
-
 - `npmPackages_${nodeId}`
 
-An array of npm packages that should be globally installed when a new node container has been created for _${nodeId}_
+An array of npm packages that should be globally installed when a new node container has been created.  When specified as `npmPackages_${nodeId}` then the npm packages will only be installed for the _$nodeId_ container
 
 Example config:
 ```
