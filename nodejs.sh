@@ -244,7 +244,7 @@ if [ -z "${status}" ]; then
       command="add"
     fi
 
-    docker exec "${containerName}" $packager $command "${pkgs[*]}"
+    docker exec "${containerName}" $packager $command ${pkgs[*]}
   fi
 
   # install global npm packages if requested
@@ -253,7 +253,12 @@ if [ -z "${status}" ]; then
   addOpts npmPkgs "npmPackages_${nodeId}"
 
   if [ ${#npmPkgs[@]} -gt 0 ]; then
-    docker exec "${containerName}" yarn global add "${npmPkgs[*]}"
+    docker exec "${containerName}" yarn global add ${npmPkgs[@]}
+  fi
+
+  # see if there is a afterCreate function declared for this nodeId
+  if declare -f -F afterCreate_${nodeId} > /dev/null; then
+    afterCreate_${nodeId} "${containerName}" "${nodeId}"
   fi
 
 # Resume the container if its paused

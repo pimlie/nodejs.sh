@@ -110,6 +110,10 @@ An array of system packages that should be installed when a new container has be
 
 An array of npm packages that should be globally installed when a new node container has been created.  When specified as `npmPackages_${nodeId}` then the npm packages will only be installed for the _$nodeId_ container
 
+- `afterCreate_${nodeId}`
+
+A bash function that is called after the container has been created. Use this to eg set a global git username or copy npm credentials (see example below)
+
 Example config:
 ```
 # /etc/nodejs-sh.conf
@@ -134,10 +138,30 @@ dockerOptions=("--dns=1.1.1.1")
 dockerOptions_opensource=("--dns=8.8.8.8")
 
 # for e2e browser testing
-packages_opensource=("chromium")
+packages_opensource=("chromium" "git")
 
 # so we can always run ncu to update all dependencies
 npmPackages=("npm-check-updates")
+
+function afterCreate_opensource {
+  containerName=$1
+
+  # copy npm credentials to container so we can run 'npm publish'
+  # (probably better to keep this outside the container though)
+  local npmRc=$(cat ~/.npmrc)
+  docker exec -u node "$containerName" sh -c 'echo "'"$npmRc"'" > ~/.npmrc'
+
+  # copy git credentials so eg 'standard-version' can push to eg github
+  # (probably better to keep this outside the container though
+  local gitCr=$(cat ~/.git-credentials)
+  docker exec -u node "$containerName" sh -c 'echo "'"$gitCr"'" > ~/.git-credentials'
+
+  # set a global user if you dont have added one in your repository
+  # (make sure to add git in packages_opensource above as well!)
+  docker exec -u node "$containerName" git config --global user.name "your username"
+  docker exec -u node "$containerName" git config --global user.email "your email"
+}
+
 ```
 
 ### Project (dir) configuration
@@ -170,6 +194,7 @@ With the above examples then when running `node` will result in using node versi
 - npm / yarn caches are not shared between containers
 - global packages are only installed for the current `node_id`, if you need to have the global package in all containers you should run the install command for all containers
 - Bash v4.3+ is required (which is eg not available for install by default on Cent OS v7)
+- There is no SIGTERM or SIGINT fired when you close the terminal of a running node command. This means that if you have eg an Express server running and close the terminal, that Express server will keep running in the docker container. So the next time you start your command eg the port will already be used.
 
 Here is a bash install from source oneliner :)
 ```
